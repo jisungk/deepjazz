@@ -1,6 +1,7 @@
 '''
 Author:     Ji-Sung Kim
 Project:    jazzml
+Purpose:    Parse, cleanup and process data.
 
 Code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml with
 express permission.
