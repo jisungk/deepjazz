@@ -1,0 +1,6 @@
+{
+  "name": "deepjazz",
+  "tagline": "Using Keras & Theano for deep learning driven jazz generation",
+  "body": "# deepjazz\r\n### Using Keras & Theano for deep learning driven jazz generation\r\nI built this project for HackPrinceton, Spring 2016. It uses [Keras](http://keras.io/) & [Theano](http://deeplearning.net/software/theano/), two deep learning libraries, to generate jazz music. It uses the AI technology that powers [AlphaGo](https://deepmind.com/alpha-go.html) and [Google DeepDream](http://googleresearch.blogspot.com/2015/06/inceptionism-going-deeper-into-neural.html) to make music, something that's often considered as deeply human.\r\n\r\n### Author\r\nJi-Sung Kim  \r\nPrinceton University, Department of Computer Science  \r\njisungk@princeton.edu  \r\n\r\n### License\r\nApache License 2.0",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
