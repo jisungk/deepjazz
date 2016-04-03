@@ -4,6 +4,8 @@ express permission.
 
 '''
 
+from __future__ import print_function
+
 # Definitions
 head = lambda x: x[0:5] # from R
 tail = lambda x: x[:-6:-1] # from R
@@ -37,15 +39,15 @@ def pretty(element):
 
 ''' Pretty print a stream of notes/rests: '''
 def prettyPrint(notes):
-    for i in notes: print pretty(i)
+    for i in notes: print(pretty(i))
 
 ''' Print list and stuff. '''
 def compareGen(m1_grammar, m1_elements):
     for i, j in zip(m1_grammar.split(' '), m1_elements):
         if isinstance(j, note.Note):
-            print '%s  |  %s' % (ppn(j), i)
+            print('%s  |  %s' % (ppn(j), i))
         else:
-            print '%s  |  %s' % (ppr(j), i)
+            print('%s  |  %s' % (ppr(j), i))
 
 ''' From recipes: iterate over list in chunks of n length. '''
 def grouper(iterable, n, fillvalue=None):
@@ -190,7 +192,6 @@ for ix in xrange(1, len(allMeasures)):
     for j in allMeasures_chords[ix]:
         c.insert(j.offset, j)
     parsed = parseMelody(m, c)
-    # print '%s: %s\n' % (ix, parsed)
     abstractGrammars.append(parsed)
 
 genStream = stream.Stream()
@@ -199,31 +200,9 @@ genStream = stream.Stream()
 currOffset = 0
 loopEnd = len(allMeasures_chords)
 
-#---------------------------------PREPROCESS2----------------------------------#
+#-----------------------------------MYSTUFF------------------------------------#
 corpus = [x for sublist in abstractGrammars for x in sublist.split(' ')]
 
-
-
-
-
-
-
-
-
-
-
-
-#----------------------------------GENERATE------------------------------------#
-'''
-Code adapted from public examples in the Keras documentation: 
-https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
-
-
-At least 20 epochs are required before the generated text
-starts sounding coherent.
-'''
-
-'''
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
@@ -232,13 +211,85 @@ import numpy as np
 import random
 import sys
 
-for loopIndex in range(1, loopEnd): # prev: len(allMeasures_chords)
-    # get chords from input
-    m1_chords = stream.Voice() # initialize
-    for j in allMeasures_chords[loopIndex]:
-        m1_chords.insert((j.offset % 4), j)
+print('corpus length:', len(corpus))
+values = set(corpus)
+print('total # of values:', len(values))
+val_indices = dict((v, i) for i, v in enumerate(values))
+indices_val = dict((i, v) for i, v in enumerate(values))
+
+# cut the corpus in semi-redundant sequences of maxlen values
+maxlen = 20
+step = 3
+sentences = []
+next_values = []
+for i in range(0, len(corpus) - maxlen, step):
+    sentences.append(corpus[i: i + maxlen])
+    next_values.append(corpus[i + maxlen])
+print('nb sequences:', len(sentences))
+
+print('Vectorization...')
+X = np.zeros((len(sentences), maxlen, len(values)), dtype=np.bool)
+y = np.zeros((len(sentences), len(values)), dtype=np.bool)
+for i, sentence in enumerate(sentences):
+    for t, val in enumerate(sentence):
+        X[i, t, val_indices[val]] = 1
+    y[i, val_indices[next_values[i]]] = 1
+
+# build the model: 2 stacked LSTM
+print('Build model...')
+model = Sequential()
+model.add(LSTM(128, return_sequences=True, input_shape=(maxlen, len(values))))
+model.add(Dropout(0.2))
+model.add(LSTM(128, return_sequences=False))
+model.add(Dropout(0.2))
+model.add(Dense(len(values)))
+model.add(Activation('softmax'))
+
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+N_epochs = 3
+model.fit(X, y, batch_size=128, nb_epoch=N_epochs)
+diversity = 0.5
+
+def sample(a, temperature=1.0):
+    # helper function to sample an index from a probability array
+    a = np.log(a) / temperature
+    a = np.exp(a) / np.sum(np.exp(a))
+    return np.argmax(np.random.multinomial(1, a, 1))
 
 
+start_index = random.randint(0, len(corpus) - maxlen - 1)
+sentence = corpus[start_index: start_index + maxlen]
+print('----- Generating with seed: ')
+print(sentence)
+print('-' * 5)
+
+generated = list()
+running_length = 0.0
+while running_length <= 4.1: # avg of lengths, somewhat arbitrary
+    x = np.zeros((1, maxlen, len(values)))
+
+    for t, val in enumerate(sentence):
+        if (not val in val_indices): print(val)
+        x[0, t, val_indices[val]] = 1.
+
+    preds = model.predict(x, verbose=0)[0]
+    next_index = sample(preds, diversity)
+    next_val = indices_val[next_index]
+
+    sentence = sentence[1:] 
+    sentence.append(next_val)
+
+    length = float(next_val.split(',')[1])
+    running_length += length
+    generated.append(next_val)
+
+print(generated)
+
+#----------------------------------GENERATE------------------------------------#
+
+
+'''
 
     # Pruning #1: 'Smooth' the measure, or make sure that everything is in 
     # standard note lengths (0.125, 0.250, 0.333 ... nothing like .482).
@@ -310,5 +361,5 @@ genStream.insert(0.0, tempo.MetronomeMark(number=130))
 
 # Play the final stream (improvisation + accompaniment) through output
 # play is defined as a lambda function above
-# play(genStream)
+  play(genStream)
 '''
