@@ -1,5 +1,6 @@
 '''
-Author: Ji-Sung Kim
+Author:     Ji-Sung Kim
+Project:    jazzml
 
 Some code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml 
 with express permission.
@@ -13,19 +14,15 @@ GPU run command:
 '''
 from __future__ import print_function
 import sys
+import random
+from itertools import izip_longest
 
 from music21 import *
-from collections import defaultdict, OrderedDict
-from itertools import groupby, izip_longest
-import pygame, copy, sys, pdb, math
-from grammar import *
-
-from keras.layers.recurrent import LSTM
 import numpy as np
-import random
 
+from grammar import *
+from preprocess import *
 import lstm
-import preprocess as pp
 
 #----------------------------HELPER FUNCTIONS----------------------------------#
 
@@ -50,8 +47,8 @@ def __grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return izip_longest(*args, fillvalue=fillvalue)
 
+''' helper function to sample an index from a probability array '''
 def __sample(a, temperature=1.0):
-    # helper function to sample an index from a probability array
     a = np.log(a) / temperature
     a = np.exp(a) / np.sum(np.exp(a))
     return np.argmax(np.random.multinomial(1, a, 1))
@@ -69,12 +66,12 @@ else:
 
 # get data, build model
 corpus, values, val_indices, indices_val, allMeasures_chords, \
-    abstractGrammars = pp.get_data(fn)
+    abstractGrammars = get_data(fn)
 print('corpus length:', len(corpus))
 print('total # of values:', len(values))
 
-model = lstm.build_model(corpus=corpus, values=values, maxlen=maxlen, 
-    N_epochs=N_epochs)
+model = lstm.build_model(corpus=corpus, values=values, val_indices=val_indices,
+    maxlen=maxlen, N_epochs=N_epochs)
 
 genStream = stream.Stream() # output stream
 play = lambda x: midi.realtime.StreamPlayer(x).play()

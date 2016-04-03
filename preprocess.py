@@ -1,4 +1,7 @@
 '''
+Author:     Ji-Sung Kim
+Project:    jazzml
+
 Code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml with
 express permission.
 '''
@@ -6,14 +9,11 @@ express permission.
 from __future__ import print_function
 
 from music21 import *
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from itertools import groupby, izip_longest
-import pygame, copy, sys, pdb, math
 from grammar import *
 
-'''
-Get relevant data from a MIDI file.
-'''
+''' Get relevant data from a MIDI file. '''
 def get_data(fn):
     # Parse the MIDI data for separate melody and accompaniment parts.
     midi_data = converter.parse(fn)

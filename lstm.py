@@ -15,7 +15,8 @@ from keras.layers.recurrent import LSTM
 import numpy as np
 import random
 
-def build_model(corpus, values, maxlen, N_epochs=128):
+''' Build a 2-layer LSTM from a training corpus '''
+def build_model(corpus, values, val_indices, maxlen, N_epochs=128):
     # cut the corpus in semi-redundant sequences of maxlen values
     step = 3
     sentences = []
