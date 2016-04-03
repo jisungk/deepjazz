@@ -1,3 +1,16 @@
+'''
+Author: Ji-Sung Kim
+
+Some code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml 
+with express permission.
+
+Code was built while significantly referencing public examples from the
+Keras documentation on Github:
+https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
+
+GPU run command:
+    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python preprocess.py
+'''
 from __future__ import print_function
 import sys
 

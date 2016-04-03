@@ -1,10 +1,6 @@
 '''
 Code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml with
 express permission.
-
-GPU run command:
-    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python preprocess.py
-
 '''
 
 from __future__ import print_function
@@ -15,6 +11,9 @@ from itertools import groupby, izip_longest
 import pygame, copy, sys, pdb, math
 from grammar import *
 
+'''
+Get relevant data from a MIDI file.
+'''
 def get_data(fn):
     # Parse the MIDI data for separate melody and accompaniment parts.
     midi_data = converter.parse(fn)

@@ -1,3 +1,12 @@
+'''
+Author:     Ji-Sung Kim
+Project:    jazzml
+
+Code was built while significantly referencing public examples from the
+Keras documentation on Github:
+https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
+'''
+
 from __future__ import print_function
 
 from keras.models import Sequential
@@ -16,7 +25,7 @@ def build_model(corpus, values, maxlen, N_epochs=128):
         next_values.append(corpus[i + maxlen])
     print('nb sequences:', len(sentences))
 
-    print('Vectorization...')
+    # transform data into essentially binary matrices
     X = np.zeros((len(sentences), maxlen, len(values)), dtype=np.bool)
     y = np.zeros((len(sentences), len(values)), dtype=np.bool)
     for i, sentence in enumerate(sentences):
@@ -24,8 +33,7 @@ def build_model(corpus, values, maxlen, N_epochs=128):
             X[i, t, val_indices[val]] = 1
         y[i, val_indices[next_values[i]]] = 1
 
-    # build the model: 2 stacked LSTM
-    print('Build model...')
+    # build a 2 stacked LSTM
     model = Sequential()
     model.add(LSTM(128, return_sequences=True, input_shape=(maxlen, len(values))))
     model.add(Dropout(0.2))
