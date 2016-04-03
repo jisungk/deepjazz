@@ -1,11 +1,11 @@
-######################################################################
-# grammar.py
-# Name: Evan Chow
-# Description: generates a string representation of the measures
-# in a melody stream.
-#
-# should divide into modules 'scaletone.py', 'approachtone.py', etc.
-#######################################################################
+'''
+Author: Evan Chow
+Project:    jazzml / deepjazz
+Purpose:    Extract, manipulate, process musical grammar
+
+Pulled straight from Evan Chow's jazzml, https://github.com/evancchow/jazzml,
+with permission.
+'''
 
 from collections import OrderedDict, defaultdict
 from itertools import groupby

@@ -1,6 +1,6 @@
 '''
 Author:     Ji-Sung Kim
-Project:    jazzml
+Project:    deepjazz
 Purpose:    Generate jazz using a deep learning model (LSTM in deepjazz).
 
 Some code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml 

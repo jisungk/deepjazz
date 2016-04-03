@@ -3,6 +3,8 @@
 *.json
 *.h5
 *_svg/
+mp3/
+deepjazz_on*.midi
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,6 +1,6 @@
 ![deepjazz](https://cloud.githubusercontent.com/assets/9053987/14231549/83f21b74-f955-11e5-9477-a999aa8d94b0.png)
 ### Using Keras & Theano for deep learning driven jazz generation
-I built this project for HackPrinceton, Spring 2016. It uses Keras & Theano, two deep learning libraries, to generate jazz music. deepjazz learns from an input MIDI file and uses what it has learned to generate new jazz! It uses deep learning, the AI technology that powers [Google's AlphaGo](https://deepmind.com/alpha-go.html) and [IBM's Watson](https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html), **to make music -- something that's considered as deeply human**.
+I built *deepjazz* in 36 hours for HackPrinceton, Spring 2016. It uses Keras & Theano, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer [LSTM](http://deeplearning.net/tutorial/lstm.html), learning from the given MIDI file. It uses deep learning, the AI tech that powers [Google's AlphaGo](https://deepmind.com/alpha-go.html) and [IBM's Watson](https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html), **to make music -- something that's considered as deeply human**.
 
 ### Want to listen?
 Check out deepjazz's music on **[Soundcloud](https://soundcloud.com/deepjazz-ai)**!
