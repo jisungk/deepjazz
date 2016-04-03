@@ -2,6 +2,7 @@
 *.txt
 *.json
 *.h5
+*_svg/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
