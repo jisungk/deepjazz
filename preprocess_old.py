@@ -368,13 +368,8 @@ for loopIndex in range(1, loopEnd): # prev: len(allMeasures_chords)
 
     print '##################################################'
     print m1_grammar
+    print type(m1_grammar)
     print '\n'
-
-
-
-
-
-
 
     # Pruning #1: 'Smooth' the measure, or make sure that everything is in 
     # standard note lengths (0.125, 0.250, 0.333 ... nothing like .482).

@@ -2,6 +2,9 @@
 Code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml with
 express permission.
 
+GPU run command:
+    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python preprocess.py
+
 '''
 
 from __future__ import print_function
@@ -20,7 +23,6 @@ def roundDown(num, mult):
 ''' Round up num to nearest multiple of mult. '''
 def roundUp(num, mult):
     return roundDown(num, mult) + mult
-
 
 ''' Based if upDown < 0 or upDown >= 0, rounds number down or up
     respectively to nearest multiple of mult. '''
@@ -63,9 +65,7 @@ import pygame, copy, sys, pdb, math
 # My imports
 sys.path.append('./extract')
 sys.path.append('./grammar')
-# from grammar import parseMelody, unparseGrammar
 from grammar import *
-# from findSolo import findSolo
 
 # Parse the MIDI data for separate melody and accompaniment parts.
 play = lambda x: midi.realtime.StreamPlayer(x).play()
@@ -81,15 +81,6 @@ for j in melody2:
     melody1.insert(j.offset, j)
 melodyVoice = melody1
 
-# FOR REFERENCE
-# fullMelody.append(key.KeySignature(sharps=1, mode='major'))
-
-# Bad notes: melodyVoice[370, 391]
-# the two B-4, B-3 around melodyVoice[362]. I think: #362, #379
-# REMEMBER: after delete each of these, 
-# badIndices = [370, 391, 362, 379]
-# BETTER FIX: iterate through, if length = 0, then bump it up to 0.125
-# since I think this is giving the bug.
 for i in melodyVoice:
     if i.quarterLength == 0.0:
         i.quarterLength = 0.25
@@ -103,7 +94,7 @@ melodyVoice.insert(0, key.KeySignature(sharps=1, mode='major'))
 # the original data. Maybe add more parts, hand-add valid instruments.
 # Should add least add a string part (for sparse solos).
 # Verified are good parts: 0, 1, 6, 7 '''
-partIndices = [0, 1, 6, 7] # TODO: remove 0.0==inf duration bug in part 7
+partIndices = [0, 1, 6, 7]
 compStream = stream.Voice()
 compStream.append([j.flat for i, j in enumerate(metheny) if i in partIndices])
 
@@ -168,23 +159,11 @@ for key, group in groupby(offsetTuples_chords, lambda x: x[0]):
 #           the same key (Ab) so could actually just cut out last measure to loop.
 #           Decided: just cut out the last measure. '''
 del allMeasures_chords[len(allMeasures_chords) - 1]
-
 assert len(allMeasures_chords) == len(allMeasures)
 
-''' Could make alternative version where everything lined up with beats 1 and 3.
-    
-    Iterate over all measures, generating the grammar strings for each measure. You can do this in non-realtime - because you're just 
-    generating the list of clusters.
-
-    Note: since you're just generating cluster patterns, abstractGrammars
-    does not strictly HAVE to be the same length as the # of measures, 
-    although it would be nice. 
-'''
 # TRAINING DATA
 abstractGrammars = []
-# pdb.set_trace()
 for ix in xrange(1, len(allMeasures)):
-    # pdb.set_trace()
     m = stream.Voice()
     for i in allMeasures[ix]:
         m.insert(i.offset, i)
@@ -193,12 +172,6 @@ for ix in xrange(1, len(allMeasures)):
         c.insert(j.offset, j)
     parsed = parseMelody(m, c)
     abstractGrammars.append(parsed)
-
-genStream = stream.Stream()
-
-# Where to start, end loop
-currOffset = 0
-loopEnd = len(allMeasures_chords)
 
 #-----------------------------------MYSTUFF------------------------------------#
 corpus = [x for sublist in abstractGrammars for x in sublist.split(' ')]
@@ -247,49 +220,92 @@ model.add(Activation('softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
-N_epochs = 3
+N_epochs = 128
 model.fit(X, y, batch_size=128, nb_epoch=N_epochs)
-diversity = 0.5
 
+# save model
+json_str = model.to_json()
+with open('model_arch.json', 'w') as architecture_f:
+    architecture_f.write(json_str)
+model.save_weights('model_weights.h5', overwrite=True)
+
+
+#----------------------------------GENERATE------------------------------------#
 def sample(a, temperature=1.0):
     # helper function to sample an index from a probability array
     a = np.log(a) / temperature
     a = np.exp(a) / np.sum(np.exp(a))
     return np.argmax(np.random.multinomial(1, a, 1))
 
+# output
+genStream = stream.Stream()
 
-start_index = random.randint(0, len(corpus) - maxlen - 1)
-sentence = corpus[start_index: start_index + maxlen]
-print('----- Generating with seed: ')
-print(sentence)
-print('-' * 5)
+# Where to start, end loop
+currOffset = 0
+loopEnd = len(allMeasures_chords)
 
-generated = list()
-running_length = 0.0
-while running_length <= 4.1: # avg of lengths, somewhat arbitrary
-    x = np.zeros((1, maxlen, len(values)))
+diversity = 0.5
 
-    for t, val in enumerate(sentence):
-        if (not val in val_indices): print(val)
-        x[0, t, val_indices[val]] = 1.
+for loopIndex in range(1, loopEnd): # prev: len(allMeasures_chords)
+    # generate chords from file
+    m1_chords = stream.Voice() # initialize
+    for j in allMeasures_chords[loopIndex]:
+        m1_chords.insert((j.offset % 4), j)
 
-    preds = model.predict(x, verbose=0)[0]
-    next_index = sample(preds, diversity)
-    next_val = indices_val[next_index]
+    # generate grammar
+    start_index = random.randint(0, len(corpus) - maxlen - 1)
+    sentence = corpus[start_index: start_index + maxlen]
+    print('----- Generating with seed: ')
+    print(sentence)
+    print('-' * 5)
 
-    sentence = sentence[1:] 
-    sentence.append(next_val)
+    m1_grammar = ''
+    running_length = 0.0
+    while running_length <= 4.1: # avg of lengths, somewhat arbitrary
+        x = np.zeros((1, maxlen, len(values)))
 
-    length = float(next_val.split(',')[1])
-    running_length += length
-    generated.append(next_val)
+        # transform 
+        for t, val in enumerate(sentence):
+            if (not val in val_indices): print(val)
+            x[0, t, val_indices[val]] = 1.
 
-print(generated)
+        preds = model.predict(x, verbose=0)[0]
+        next_index = sample(preds, diversity)
+        next_val = indices_val[next_index]
 
-#----------------------------------GENERATE------------------------------------#
+        # janky fix -- need to ensure first element does not have < > and
+        # is not a rest
+        if (running_length < 0.00001):
+            terms = next_val.split(',')
+            tries = 0
+            while (terms[0] == 'R' or len(terms) != 2):
+                # give up after 1000 tries; choose in a guided, random fashion
+                if tries >= 1000:
+                    print('Gave up on first note generation')
+                    rand = np.random.randint(0, len(abstractGrammars))
+                    next_val = abstractGrammars[rand].split(' ')[0]
 
+                else:
+                    preds = model.predict(x, verbose=0)[0]
+                    next_index = sample(preds, diversity)
+                    next_val = indices_val[next_index]
 
-'''
+                terms = next_val.split(',')
+                tries += 1
+
+        sentence = sentence[1:] 
+        sentence.append(next_val)
+
+        # except for first case, add a ' ' separator
+        if (running_length > 0.00001): m1_grammar += ' '
+        m1_grammar += next_val
+
+        length = float(next_val.split(',')[1])
+        running_length += length
+
+    m1_grammar = m1_grammar.replace(' A',' C').replace(' X',' C') \
+
+    print(m1_grammar)
 
     # Pruning #1: 'Smooth' the measure, or make sure that everything is in 
     # standard note lengths (0.125, 0.250, 0.333 ... nothing like .482).
@@ -302,7 +318,7 @@ print(generated)
         m1_grammar[ix] = ','.join(terms)
     m1_grammar = ' '.join(m1_grammar)   
 
-    # get ntoes from grammar and chords
+    # get notes from grammar and chords
     m1_notes = unparseGrammar(m1_grammar, m1_chords)
 
     # fix note offset problems, i.e. same offset so pruning too many.
@@ -342,9 +358,9 @@ print(generated)
 
 
     # QA: print number of notes in m1_notes. Should see general increasing trend.
-    print 'After pruning: %s notes' % (len([i for i in m1_notes
-        if isinstance(i, note.Note)]))
-    print '\n'
+    print('After pruning: %s notes' % (len([i for i in m1_notes
+        if isinstance(i, note.Note)])))
+    print('\n')
 
     # after quality assurance
     # pdb.set_trace()
@@ -361,5 +377,4 @@ genStream.insert(0.0, tempo.MetronomeMark(number=130))
 
 # Play the final stream (improvisation + accompaniment) through output
 # play is defined as a lambda function above
-  play(genStream)
-'''
+play(genStream)
