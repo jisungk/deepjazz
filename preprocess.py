@@ -10,7 +10,7 @@ express permission.
 from __future__ import print_function
 
 from music21 import *
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from itertools import groupby, izip_longest
 from grammar import *
 
@@ -95,10 +95,6 @@ def __parse_midi(fn):
         chords[measureNum] = [n[1] for n in group]
         measureNum += 1
 
-    return measures, chords
-
-''' Helper function to get the grammatical data from given musical data. '''
-def __get_abstract_grammars(measures, chords):
     # Fix for the below problem.
     #   1) Find out why len(measures) != len(chords).
     #   ANSWER: resolves at end but melody ends 1/16 before last measure so doesn't
@@ -109,6 +105,10 @@ def __get_abstract_grammars(measures, chords):
     del chords[len(chords) - 1]
     assert len(chords) == len(measures)
 
+    return measures, chords
+
+''' Helper function to get the grammatical data from given musical data. '''
+def __get_abstract_grammars(measures, chords):
     # extract grammars
     abstract_grammars = []
     for ix in xrange(1, len(measures)):
@@ -118,7 +118,7 @@ def __get_abstract_grammars(measures, chords):
         c = stream.Voice()
         for j in chords[ix]:
             c.insert(j.offset, j)
-        parsed = parseMelody(m, c)
+        parsed = parse_melody(m, c)
         abstract_grammars.append(parsed)
 
     return abstract_grammars

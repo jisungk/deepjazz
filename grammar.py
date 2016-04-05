@@ -1,10 +1,10 @@
 '''
-Author: Evan Chow
+Author:     Ji-Sung Kim, Evan Chow
 Project:    jazzml / deepjazz
 Purpose:    Extract, manipulate, process musical grammar
 
-Pulled straight from Evan Chow's jazzml, https://github.com/evancchow/jazzml,
-with permission.
+Directly taken then cleaned up from Evan Chow's jazzml, 
+https://github.com/evancchow/jazzml,with permission.
 '''
 
 from collections import OrderedDict, defaultdict
@@ -12,10 +12,10 @@ from itertools import groupby
 from music21 import *
 import copy, random, pdb
 
-# Helper method.
-def isScaleTone(chord, note):
-    """ Method: generate all scales that have the chord notes using 
-        scale.deriveAll(notelist). Check names ('B-') if note is in those. """
+''' Helper function to determine if a note is a scale tone. '''
+def __is_scale_tone(chord, note):
+    # Method: generate all scales that have the chord notes th check if note is
+    # in names
 
     # Derive major or minor scales (minor if 'other') based on the quality
     # of the chord.
@@ -32,11 +32,9 @@ def isScaleTone(chord, note):
     noteName = note.name
     return (noteName in allNoteNames)
 
-# Helper method.
-def isApproachTone(chord, note):
-    """ Method: see if note is +-1 a chord tone. Comment: don't worry about
-        different octaves, since you'll work in the upper-lower bounds for 
-        the next notes anyway (delta 1 3 ...). """
+''' Helper function to determine if a note is an approach tone. '''
+def __is_approach_tone(chord, note):
+    # Method: see if note is +/- 1 a chord tone.
 
     for chordPitch in chord.pitches:
         stepUp = chordPitch.transpose(1)
@@ -48,19 +46,17 @@ def isApproachTone(chord, note):
                 return True
     return False
 
-# Helper method.
-def isChordTone(lastChord, note):
+''' Helper function to determine if a note is a chord tone. '''
+def __is_chord_tone(lastChord, note):
     return (note.name in (p.name for p in lastChord.pitches))
 
-# Helper method.
-def genChordTone(lastChord):
+''' Helper function to generate a chord tone. '''
+def __generate_chord_tone(lastChord):
     lastChordNoteNames = [p.nameWithOctave for p in lastChord.pitches]
     return note.Note(random.choice(lastChordNoteNames))
 
-# Helper method.
-def genScaleTone(lastChord):
-    """ Method: generate a scale note (note.Note()) from a lastChord. """
-
+''' Helper function to generate a scale tone. '''
+def __generate_scale_tone(lastChord):
     # Derive major or minor scales (minor if 'other') based on the quality
     # of the lastChord.
     scaleType = scale.WeightedHexatonicBlues() # minor pentatonic
@@ -79,57 +75,54 @@ def genScaleTone(lastChord):
     sNote = note.Note(("%s%s" % (sNoteName, sNoteOctave)))
     return sNote
 
-# Helper method.
-def genApproachTone(lastChord):
-    sNote = genScaleTone(lastChord)
+''' Helper function to generate an approach tone. '''
+def __generate_approach_tone(lastChord):
+    sNote = __generate_scale_tone(lastChord)
     aNote = sNote.transpose(random.choice([1, -1]))
     return aNote
 
-# Helper method.
-def genArbitraryTone(lastChord):
-    return genScaleTone(lastChord) # fix later, make random note.
+''' Helper function to generate a random tone. '''
+def __generate_arbitrary_tone(lastChord):
+    return __generate_scale_tone(lastChord) # fix later, make random note.
 
-def parseMelody(fullMeasureNotes, fullMeasureChords):
 
-    """ Given the notes in a measure ('measure') and the chords in that measure
-        ('chords'), generate a list (cluster) of abstract grammatical symbols to 
-        represent that measure. Described in GTK's "Learning Jazz Grammars" (2009). 
+''' Given the notes in a measure ('measure') and the chords in that measure
+    ('chords'), generate a list of abstract grammatical symbols to represent 
+    that measure as described in GTK's "Learning Jazz Grammars" (2009). 
 
-        Inputs: 
-        1) "measure" : a stream.Voice object where each element is a
-            note.Note or note.Rest object.
+    Inputs: 
+    1) "measure" : a stream.Voice object where each element is a
+        note.Note or note.Rest object.
 
-                >>> m1
-                <music21.stream.Voice 328482572>
-                >>> m1[0]
-                <music21.note.Rest rest>
-                >>> m1[1]
-                <music21.note.Note C>
+        >>> m1
+        <music21.stream.Voice 328482572>
+        >>> m1[0]
+        <music21.note.Rest rest>
+        >>> m1[1]
+        <music21.note.Note C>
 
-            Can have instruments and other elements, removes them here.
+        Can have instruments and other elements, removes them here.
 
-        2) "chords" : a stream.Voice object where each element is a chord.Chord.
+    2) "chords" : a stream.Voice object where each element is a chord.Chord.
 
-                >>> c1
-                <music21.stream.Voice 328497548>
-                >>> c1[0]
-                <music21.chord.Chord E-4 G4 C4 B-3 G#2>
-                >>> c1[1]
-                <music21.chord.Chord B-3 F4 D4 A3>
+        >>> c1
+        <music21.stream.Voice 328497548>
+        >>> c1[0]
+        <music21.chord.Chord E-4 G4 C4 B-3 G#2>
+        >>> c1[1]
+        <music21.chord.Chord B-3 F4 D4 A3>
 
-            Can have instruments and other elements, removes them here. 
+        Can have instruments and other elements, removes them here. 
 
-        Outputs:
-        1) "fullGrammar" : a string that holds the abstract grammar for measure.
-
+    Outputs:
+    1) "fullGrammar" : a string that holds the abstract grammar for measure.
         Format: 
         (Remember, these are DURATIONS not offsets!)
         "R,0.125" : a rest element of  (1/32) length, or 1/8 quarter note. 
         "C,0.125<M-2,m-6>" : chord note of (1/32) length, generated
                              anywhere from minor 6th down to major 2nd down.
-                             (interval <a,b> is not ordered). 
-    """
-
+                             (interval <a,b> is not ordered). '''
+def parse_melody(fullMeasureNotes, fullMeasureChords):
     # Remove extraneous elements.x
     measure = copy.deepcopy(fullMeasureNotes)
     chords = copy.deepcopy(fullMeasureChords)
@@ -142,8 +135,8 @@ def parseMelody(fullMeasureNotes, fullMeasureChords):
     measureStartTime = measure[0].offset - (measure[0].offset % 4)
     measureStartOffset  = measure[0].offset - measureStartTime
 
-    """ Iterate over the notes and rests in measure, finding the grammar for each
-        note in the measure and adding an abstract grammatical string for it. """
+    # Iterate over the notes and rests in measure, finding the grammar for each
+    # note in the measure and adding an abstract grammatical string for it. 
 
     fullGrammar = ""
     prevNote = None # Store previous note. Need for interval.
@@ -168,10 +161,10 @@ def parseMelody(fullMeasureNotes, fullMeasureChords):
             elementType = 'C'
         # L: (Complement tone) Skip this for now.
         # S: Check if it's a scale tone.
-        elif isScaleTone(lastChord, nr):
+        elif __is_scale_tone(lastChord, nr):
             elementType = 'S'
         # A: Check if it's an approach tone, i.e. +-1 halfstep chord tone.
-        elif isApproachTone(lastChord, nr):
+        elif __is_approach_tone(lastChord, nr):
             elementType = 'A'
         # X: Otherwise, it's an arbitrary tone. Generate random note.
         else:
@@ -215,18 +208,12 @@ def parseMelody(fullMeasureNotes, fullMeasureChords):
 
     return fullGrammar.rstrip()
 
-
-def unparseGrammar(m1_grammar, m1_chords):
-    """ Given a grammar string and chords for a measure, returns the generated
-        notes for that measure. """
-
+''' Given a grammar string and chords for a measure, returns measure notes. '''
+def unparse_grammar(m1_grammar, m1_chords):
     m1_elements = stream.Voice()
     currOffset = 0.0 # for recalculate last chord.
     prevElement = None
     for ix, grammarElement in enumerate(m1_grammar.split(' ')):
-        # print ("On iteration %s ..." % ix)
-        # if (ix == 7):
-        #     pdb.set_trace()
         terms = grammarElement.split(',')
         currOffset += float(terms[1]) # works just fine
 
@@ -254,16 +241,16 @@ def unparseGrammar(m1_grammar, m1_chords):
 
             # Case C: chord note.
             if terms[0] == 'C':
-                insertNote = genChordTone(lastChord)
+                insertNote = __generate_chord_tone(lastChord)
 
             # Case S: scale note.
             elif terms[0] == 'S':
-                insertNote = genScaleTone(lastChord)
+                insertNote = __generate_scale_tone(lastChord)
 
             # Case A: approach note.
             # Handle both A and X notes here for now.
             else:
-                insertNote = genApproachTone(lastChord)
+                insertNote = __generate_approach_tone(lastChord)
 
             # Update the stream of generated notes
             insertNote.quarterLength = float(terms[1])
@@ -294,7 +281,7 @@ def unparseGrammar(m1_grammar, m1_chords):
                 relevantChordTones = []
                 for i in xrange(0, numNotes):
                     currNote = note.Note(lowPitch.transpose(i).simplifyEnharmonic())
-                    if isChordTone(lastChord, currNote):
+                    if __is_chord_tone(lastChord, currNote):
                         relevantChordTones.append(currNote)
                 if len(relevantChordTones) > 1:
                     insertNote = random.choice([i for i in relevantChordTones
@@ -313,7 +300,7 @@ def unparseGrammar(m1_grammar, m1_chords):
                 relevantScaleTones = []
                 for i in xrange(0, numNotes):
                     currNote = note.Note(lowPitch.transpose(i).simplifyEnharmonic())
-                    if isScaleTone(lastChord, currNote):
+                    if __is_scale_tone(lastChord, currNote):
                         relevantScaleTones.append(currNote)
                 if len(relevantScaleTones) > 1:
                     insertNote = random.choice([i for i in relevantScaleTones
@@ -333,7 +320,7 @@ def unparseGrammar(m1_grammar, m1_chords):
                 relevantApproachTones = []
                 for i in xrange(0, numNotes):
                     currNote = note.Note(lowPitch.transpose(i).simplifyEnharmonic())
-                    if isApproachTone(lastChord, currNote):
+                    if __is_approach_tone(lastChord, currNote):
                         relevantApproachTones.append(currNote)
                 if len(relevantApproachTones) > 1:
                     insertNote = random.choice([i for i in relevantApproachTones

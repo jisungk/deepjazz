@@ -43,10 +43,11 @@ def __predict(model, x, indices_val, diversity):
 def __generate_grammar(model, corpus, abstract_grammars, indices_val, 
                        diversity):
     curr_grammar = ''
-    start_index = np.random.randint(0, len(corpus) - maxlen - 1)
+    # np.random.randint is exclusive to high
+    start_index = np.random.randint(0, len(corpus) - maxlen)
     sentence = corpus[start_index: start_index + maxlen]    # seed
     running_length = 0.0
-    while running_length <= 5.0:    # arbitrary
+    while running_length <= 4.1:    # arbitrary, from avg in input file
         # transform sentence (previous sequence) to matrix
         x = np.zeros((1, maxlen, len(values)))
         for t, val in enumerate(sentence):
@@ -64,7 +65,8 @@ def __generate_grammar(model, corpus, abstract_grammars, indices_val,
                 if tries >= max_tries:
                     print('Gave up on first note generation after', max_tries, 
                         'tries')
-                    rand = np.random.randint(0, len(abstract_grammars) - 1)
+                    # np.random is exclusive to high
+                    rand = np.random.randint(0, len(abstract_grammars))
                     next_val = abstract_grammars[rand].split(' ')[0]
                 else:
                     next_val = __predict(model, x, indices_val, diversity)
@@ -98,6 +100,9 @@ outfn = 'midi/' 'deepjazz_on_metheny...' + str(N_epochs)
 if (N_epochs == 1): outfn += '_epoch.midi'
 else:               outfn += '_epochs.midi'
 
+# musical settings
+bpm = 130
+
 # get data
 chords, abstract_grammars = get_musical_data(fn)
 corpus, val_indices, indices_val = get_corpus_data(abstract_grammars)
@@ -115,7 +120,7 @@ play = lambda x: midi.realtime.StreamPlayer(x).play()
 stop = lambda: pygame.mixer.music.stop()
 
 # generation loop
-curr_offset = 0
+curr_offset = 0.0
 loopEnd = len(chords)
 for loopIndex in range(1, loopEnd):
     # get chords from file
@@ -132,7 +137,7 @@ for loopIndex in range(1, loopEnd):
     curr_grammar = prune_grammar(curr_grammar)
 
     # Get notes from grammar and chords
-    curr_notes = unparseGrammar(curr_grammar, curr_chords)
+    curr_notes = unparse_grammar(curr_grammar, curr_chords)
 
     # Pruning #2: removing repeated and too close together notes
     curr_notes = prune_notes(curr_notes)
@@ -152,7 +157,7 @@ for loopIndex in range(1, loopEnd):
 
     curr_offset += 4.0
 
-out_stream.insert(0.0, tempo.MetronomeMark(number=130))
+out_stream.insert(0.0, tempo.MetronomeMark(number=bpm))
 
 # Play the final stream through output (see 'play' lambda function above)
 play(out_stream)

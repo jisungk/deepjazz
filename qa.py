@@ -1,5 +1,5 @@
 '''
-Author:     Ji-Sung Kim
+Author:     Ji-Sung Kim, Evan Chow
 Project:    deepjazz
 Purpose:    Provide pruning and cleanup functions.
 
@@ -53,16 +53,14 @@ def prune_grammar(curr_grammar):
 
 ''' Remove repeated notes, and notes that are too close together. '''
 def prune_notes(curr_notes):
-    pruned_notes = curr_notes
-
-    for n1, n2 in __grouper(pruned_notes, n=2):
+    for n1, n2 in __grouper(curr_notes, n=2):
         if n2 == None: # corner case: odd-length list
             continue
         if isinstance(n1, note.Note) and isinstance(n2, note.Note):
             if n1.nameWithOctave == n2.nameWithOctave:
-                pruned_notes.remove(n2)
+                curr_notes.remove(n2)
 
-    return pruned_notes
+    return curr_notes
 
 ''' Perform quality assurance on notes '''
 def clean_up_notes(curr_notes):
@@ -77,6 +75,6 @@ def clean_up_notes(curr_notes):
             if (m.offset == curr_notes[ix + 1].offset and
                 isinstance(curr_notes[ix + 1], note.Note)):
                 removeIxs.append((ix + 1))
-    clean_notes = [i for ix, i in enumerate(curr_notes) if ix not in removeIxs]
+    curr_notes = [i for ix, i in enumerate(curr_notes) if ix not in removeIxs]
 
-    return clean_notes
+    return curr_notes

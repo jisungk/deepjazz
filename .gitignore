@@ -2,9 +2,10 @@
 *.txt
 *.json
 *.h5
-*_svg/
+*svg/
 mp3/
 deepjazz_on*.midi
+*_old*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
