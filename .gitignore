@@ -1,4 +1,5 @@
 # source
-_svg/
+svg/
 midi/
 mp3/
+*.pyc

@@ -1,57 +1,67 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>deepjazz by jisungk</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name"> <img src="logo_white.png" alt="deepjazz" style="width:400px;height:120px;"></h1>
-      <h2 class="project-tagline">Using Keras &amp; Theano for deep learning driven jazz generation</h2>
-      <a href="https://soundcloud.com/deepjazz-ai" class="btn">Listen on <b>Soundcloud</b></a>
-      <a href="https://github.com/jisungk/deepjazz" class="btn">View on GitHub</a>
-      <a href="https://github.com/jisungk/deepjazz/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/jisungk/deepjazz/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+    <head>
+        <meta charset="UTF-8">
+        <title>deepjazz: deep learning for jazz</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+        <!-- Facebook Graph tags --> 
+        <meta property="og:url" content="https://jisungk.github.io/deepjazz/" />
+        <meta property="og:site_name" content="deepjazz.io" />
+        <meta property="og:title" content="Deep learning driven jazz generation" />
+        <meta property="og:description" content="deepjazz uses Keras and Theano, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer LSTM, learning from the given MIDI file. It uses deep learning, the AI tech that powers Google's AlphaGo and IBM's Watson, to make music -- something that's considered as deeply human." />
+        <!-- Facebook Graph bug: cannot crawl https links, so list as http --> 
+        <meta property="og:image" content="https://jisungk.github.io/deepjazz/img/thumbnail_graph.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    </head>
+    <body>
+        <section class="page-header">
+            <h1 class="project-name"> <img src="img/logo_white.svg" alt="deepjazz" style="width:360px;height:90px;"></h1>
+            <h2 class="project-tagline">Using Keras &amp; Theano for deep learning driven jazz generation</h2>
+            <a href="https://soundcloud.com/deepjazz-ai" class="btn">Listen on <b>Soundcloud</b></a>
+            <a href="https://github.com/jisungk/deepjazz" class="btn">View on GitHub</a>
+            <a href="https://github.com/jisungk/deepjazz/zipball/master" class="btn">Download .zip</a>
+            <a href="https://github.com/jisungk/deepjazz/tarball/master" class="btn">Download .tar.gz</a>
+        </section>
 
-    <section class="main-content">
-      <h1>
-<a id="deepjazz" class="anchor" href="#deepjazz" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>deepjazz</h1>
+        <section class="main-content">
+            <h1>
+                <a id="deepjazz" class="anchor" href="#deepjazz" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>deepjazz
+            </h1>
+            <h3>
+                <a id="using-keras--theano-for-deep-learning-driven-jazz-generation" class="anchor" href="#using-keras--theano-for-deep-learning-driven-jazz-generation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using Keras &amp; Theano for deep learning driven jazz generation
+            </h3>
+            <p>
+                I built <i>deepjazz</i> in 36 hours for HackPrinceton, Spring 2016. It uses <a href="http://keras.io/">Keras</a> &amp; <a href="http://deeplearning.net/software/theano/">Theano</a>, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer <a href="http://deeplearning.net/tutorial/lstm.html">LSTM</a>, learning from the given MIDI file. It uses deep learning, the AI tech that powers <a href="https://deepmind.com/alpha-go.html">Google's AlphaGo</a> and <a href="https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html">IBM's Watson</a>, <b>to make music -- something that's considered as deeply human</b>.
+            </p>
+            <h3>
+                <a id="soundcloud" class="anchor" href="#soundclound" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Want to listen?
+            </h3>
+            <p>
+                Check out deepjazz's music on <a href="https://soundcloud.com/deepjazz-ai">Soundcloud</a>!
+            </p>
 
-<h3>
-<a id="using-keras--theano-for-deep-learning-driven-jazz-generation" class="anchor" href="#using-keras--theano-for-deep-learning-driven-jazz-generation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using Keras &amp; Theano for deep learning driven jazz generation</h3>
+            <h3>
+                <a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author
+            </h3>
 
-<p>I built <i>deepjazz</i> in 36 hours for HackPrinceton, Spring 2016. It uses <a href="http://keras.io/">Keras</a> &amp; <a href="http://deeplearning.net/software/theano/">Theano</a>, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer <a href="http://deeplearning.net/tutorial/lstm.html">LSTM</a>, learning from the given MIDI file. It uses deep learning, the AI tech that powers <a href="https://deepmind.com/alpha-go.html">Google's AlphaGo</a> and <a href="https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html">IBM's Watson</a>, <b>to make music -- something that's considered as deeply human</b>.</p>
+            <p>
+                <a href="http://jisungkim.com">Ji-Sung Kim</a><br>
+                Princeton University, Department of Computer Science<br>
+                <a href="mailto:jisungk@princeton.edu">jisungk@princeton.edu</a>
+            </p>
 
-<h3>
-<a id="soundcloud" class="anchor" href="#soundclound" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Want to listen?</h3>
-<p>Check out deepjazz's music on <a href="https://soundcloud.com/deepjazz-ai">Soundcloud</a>!</p>
-
-<h3>
-<a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h3>
-
-<p>Ji-Sung Kim<br>
-Princeton University, Department of Computer Science<br>
-<a href="mailto:jisungk@princeton.edu">jisungk@princeton.edu</a>  </p>
-
-<h3>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
-
-<p>Apache License 2.0</p>
-
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/jisungk/deepjazz">deepjazz</a> is maintained by <a href="https://github.com/jisungk">jisungk</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-  
-  </body>
+            <h3>
+                <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License
+            </h3>
+            <p>Apache License 2.0</p>
+            <footer class="site-footer">
+                <span class="site-footer-owner"><a href="https://github.com/jisungk/deepjazz">deepjazz</a> is maintained by <a href="https://github.com/jisungk">Ji-Sung Kim</a>.</span>
+            </footer>
+        </section>
+    </body>
 </html>
