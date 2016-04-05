@@ -15,187 +15,150 @@ GPU run command:
 '''
 from __future__ import print_function
 import sys
-import random
-from itertools import izip_longest
 
 from music21 import *
 import numpy as np
 
 from grammar import *
 from preprocess import *
+from qa import *
 import lstm
 
 #----------------------------HELPER FUNCTIONS----------------------------------#
 
-''' Round down num to the nearest multiple of mult. '''
-def __roundDown(num, mult):
-    return (float(num) - (float(num) % mult))
-
-''' Round up num to nearest multiple of mult. '''
-def __roundUp(num, mult):
-    return __roundDown(num, mult) + mult
-
-''' Based if upDown < 0 or upDown >= 0, rounds number down or up
-    respectively to nearest multiple of mult. '''
-def __roundUpDown(num, mult, upDown):
-    if upDown < 0:
-        return __roundDown(num, mult)
-    else:
-        return __roundUp(num, mult)
-
-''' From recipes: iterate over list in chunks of n length. '''
-def __grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
-
-''' helper function to sample an index from a probability array '''
+''' Helper function to sample an index from a probability array '''
 def __sample(a, temperature=1.0):
     a = np.log(a) / temperature
     a = np.exp(a) / np.sum(np.exp(a))
     return np.argmax(np.random.multinomial(1, a, 1))
 
-#---------------------------------SCRIPT---------------------------------------#
-# settings
-diversity = 0.5
-maxlen = 20
-N_epochs = int(sys.argv[1])
-fn = 'midi/' + 'original_metheny.mid' # 'And Then I Knew' by Pat Metheny 
-if N_epochs != 1:
-    outfn = 'midi/' 'deepjazz_on_metheny...' + str(N_epochs) +  '_epochs.midi'
-else:
-    outfn = 'midi/' 'deepjazz_on_metheny...' + '1_epoch.midi'
+''' Helper function to generate a predicted value from a given matrix '''
+def __predict(model, x, indices_val, diversity):
+    preds = model.predict(x, verbose=0)[0]
+    next_index = __sample(preds, diversity)
+    next_val = indices_val[next_index]
 
-# get data, build model
-corpus, values, val_indices, indices_val, allMeasures_chords, \
-    abstractGrammars = get_data(fn)
-print('corpus length:', len(corpus))
-print('total # of values:', len(values))
+    return next_val
 
-model = lstm.build_model(corpus=corpus, values=values, val_indices=val_indices,
-    maxlen=maxlen, N_epochs=N_epochs)
-
-genStream = stream.Stream() # output stream
-play = lambda x: midi.realtime.StreamPlayer(x).play()
-stop = lambda: pygame.mixer.music.stop()
-
-currOffset = 0
-loopEnd = len(allMeasures_chords)
-for loopIndex in range(1, loopEnd):
-    # generate chords from file
-    m1_chords = stream.Voice()
-    for j in allMeasures_chords[loopIndex]:
-        m1_chords.insert((j.offset % 4), j)
-
-    # generate grammar
-    start_index = random.randint(0, len(corpus) - maxlen - 1)
-    sentence = corpus[start_index: start_index + maxlen]
-
-    m1_grammar = ''
+def __generate_grammar(model, corpus, abstract_grammars, indices_val, 
+                       diversity):
+    curr_grammar = ''
+    start_index = np.random.randint(0, len(corpus) - maxlen - 1)
+    sentence = corpus[start_index: start_index + maxlen]    # seed
     running_length = 0.0
-    while running_length <= 4.1: # from avg in input file somewhat arbitrary
+    while running_length <= 5.0:    # arbitrary
+        # transform sentence (previous sequence) to matrix
         x = np.zeros((1, maxlen, len(values)))
-
-        # transform 
         for t, val in enumerate(sentence):
             if (not val in val_indices): print(val)
             x[0, t, val_indices[val]] = 1.
 
-        preds = model.predict(x, verbose=0)[0]
-        next_index = __sample(preds, diversity)
-        next_val = indices_val[next_index]
+        next_val = __predict(model, x, indices_val, diversity)
 
-        # fix first element => must not have < > and not be rest
+        # fix first note: must not have < > and not be a rest
         if (running_length < 0.00001):
-            terms = next_val.split(',')
             tries = 0
-            while (terms[0] == 'R' or len(terms) != 2):
-                # give up after 1000 tries; choose in a guided, random fashion
-                if tries >= 1000:
-                    print('Gave up on first note generation')
-                    rand = random.randint(0, len(abstractGrammars) - 1)
-                    next_val = abstractGrammars[rand].split(' ')[0]
-
+            while (next_val.split(',')[0] == 'R' or 
+                len(next_val.split(',')) != 2):
+                # give up after 1000 tries; random from input's first notes
+                if tries >= max_tries:
+                    print('Gave up on first note generation after', max_tries, 
+                        'tries')
+                    rand = np.random.randint(0, len(abstract_grammars) - 1)
+                    next_val = abstract_grammars[rand].split(' ')[0]
                 else:
-                    preds = model.predict(x, verbose=0)[0]
-                    next_index = __sample(preds, diversity)
-                    next_val = indices_val[next_index]
+                    next_val = __predict(model, x, indices_val, diversity)
 
-                terms = next_val.split(',')
                 tries += 1
 
+        # shift sentence over with new value
         sentence = sentence[1:] 
         sentence.append(next_val)
 
         # except for first case, add a ' ' separator
-        if (running_length > 0.00001): m1_grammar += ' '
-        m1_grammar += next_val
+        if (running_length > 0.00001): curr_grammar += ' '
+        curr_grammar += next_val
 
         length = float(next_val.split(',')[1])
         running_length += length
 
-    m1_grammar = m1_grammar.replace(' A',' C').replace(' X',' C') \
+    return curr_grammar
 
-    # Pruning #1: 'Smooth' the measure, or make sure that everything is in 
-    # standard note lengths (0.125, 0.250, 0.333 ... nothing like .482).
-    m1_grammar = m1_grammar.split(' ')
-    for ix, gram in enumerate(m1_grammar):
-        terms = gram.split(',')
-        terms[1] = str(__roundUpDown(float(terms[1]), 0.250, random.choice([-1, 1])))
-        m1_grammar[ix] = ','.join(terms)
-    m1_grammar = ' '.join(m1_grammar)   
+#---------------------------------SCRIPT---------------------------------------#
+
+# model settings
+diversity = 0.5
+maxlen = 20
+max_tries = 1000
+N_epochs = int(sys.argv[1])
+
+# i/o settings
+fn = 'midi/' + 'original_metheny.mid' # 'And Then I Knew' by Pat Metheny 
+outfn = 'midi/' 'deepjazz_on_metheny...' + str(N_epochs)
+if (N_epochs == 1): outfn += '_epoch.midi'
+else:               outfn += '_epochs.midi'
+
+# get data
+chords, abstract_grammars = get_musical_data(fn)
+corpus, val_indices, indices_val = get_corpus_data(abstract_grammars)
+values = set(corpus)
+print('corpus length:', len(corpus))
+print('total # of values:', len(values))
+
+# build model
+model = lstm.build_model(corpus=corpus, val_indices=val_indices, maxlen=maxlen,
+                         N_epochs=N_epochs)
+
+# set up audio stream
+out_stream = stream.Stream()
+play = lambda x: midi.realtime.StreamPlayer(x).play()
+stop = lambda: pygame.mixer.music.stop()
+
+# generation loop
+curr_offset = 0
+loopEnd = len(chords)
+for loopIndex in range(1, loopEnd):
+    # get chords from file
+    curr_chords = stream.Voice()
+    for j in chords[loopIndex]:
+        curr_chords.insert((j.offset % 4), j)
+
+    # generate grammar
+    curr_grammar = __generate_grammar(model, corpus, abstract_grammars, 
+                                      indices_val, diversity)
+    curr_grammar = curr_grammar.replace(' A',' C').replace(' X',' C')
+
+    # Pruning #1: smoothing measure
+    curr_grammar = prune_grammar(curr_grammar)
 
     # Get notes from grammar and chords
-    m1_notes = unparseGrammar(m1_grammar, m1_chords)
+    curr_notes = unparseGrammar(curr_grammar, curr_chords)
 
-    # fix note offset problems, i.e. same offset so pruning too many.
-    # remember - later you can remove 'if (n2.offset - n1.offset) < 0.125' since
-    # already adjusted the note durations to be regular enough.
+    # Pruning #2: removing repeated and too close together notes
+    curr_notes = prune_notes(curr_notes)
 
-    # Pruning #2: remove repeated notes, and notes WAY too close together.
-    for n1, n2 in __grouper(m1_notes, n=2):
-        if n2 == None: # corner case: odd-length list
-            continue
-        # if (n2.offset - n1.offset) < 0.125:
-        #     if random.choice(([True] * 10 + [False] * (loopIndex)**2)):
-        #         m1_notes.remove(n2)
-        if isinstance(n1, note.Note) and isinstance(n2, note.Note):
-            if n1.nameWithOctave == n2.nameWithOctave:
-                m1_notes.remove(n2)
+    # quality assurance: clean up notes
+    curr_notes = clean_up_notes(curr_notes)
 
-    # Quality assurance.
-    removeIxs = []
-    for ix, m in enumerate(m1_notes):
-        # QA: make sure nothing is of 0 quarter note length - else changes its len.
-        if (m.quarterLength == 0.0):
-            m.quarterLength = 0.250
-        # QA: make sure no two melody notes have same offset, i.e. form a chord.
-        # Sorted, so same offset would be consecutive notes.
-        if (ix < (len(m1_notes) - 1)):
-            if (m.offset == m1_notes[ix + 1].offset and
-                isinstance(m1_notes[ix + 1], note.Note)):
-                removeIxs.append((ix + 1))
-    m1_notes = [i for ix, i in enumerate(m1_notes) if ix not in removeIxs]
-
-    # QA: print number of notes in m1_notes. Should see general increasing trend.
-    print('After pruning: %s notes' % (len([i for i in m1_notes
+    # print # of notes in curr_notes
+    print('After pruning: %s notes' % (len([i for i in curr_notes
         if isinstance(i, note.Note)])))
 
-    # after quality assurance
-    for m in m1_notes:
-        genStream.insert(currOffset + m.offset, m)
-    for mc in m1_chords:
-        genStream.insert(currOffset + mc.offset, mc)
+    # insert into the output stream
+    for m in curr_notes:
+        out_stream.insert(curr_offset + m.offset, m)
+    for mc in curr_chords:
+        out_stream.insert(curr_offset + mc.offset, mc)
 
-    currOffset += 4.0
+    curr_offset += 4.0
 
-genStream.insert(0.0, tempo.MetronomeMark(number=130))
+out_stream.insert(0.0, tempo.MetronomeMark(number=130))
 
-# Play the final stream through output
-# play is defined as a lambda function above
-play(genStream)
+# Play the final stream through output (see 'play' lambda function above)
+play(out_stream)
 
 # save stream
-mf = midi.translate.streamToMidiFile(genStream)
+mf = midi.translate.streamToMidiFile(out_stream)
 mf.open(outfn, 'wb')
 mf.write()
 mf.close()
