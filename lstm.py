@@ -4,7 +4,7 @@ Project:    jazzml
 Purpose:    Builds an LSTM, a type of recurrent neural network (RNN). 
 
 Code was built while significantly referencing public examples from the
-Keras documentation on Github:
+Keras documentation on GitHub:
 https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
 '''
 

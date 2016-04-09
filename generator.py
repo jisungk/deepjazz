@@ -7,7 +7,7 @@ Some code adapted from Evan Chow's jazzml, https://github.com/evancchow/jazzml
 with express permission.
 
 Code was built while significantly referencing public examples from the
-Keras documentation on Github:
+Keras documentation on GitHub:
 https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
 
 GPU run command:
