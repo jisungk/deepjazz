@@ -1,0 +1,7 @@
+Represent notes as relative
+
+Sparse numpy arrays for Keras (big project)
+
+Way to handle melody selection
+
+multiple artists for single model
