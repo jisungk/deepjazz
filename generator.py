@@ -11,7 +11,7 @@ Keras documentation on GitHub:
 https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
 
 GPU run command:
-    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python preprocess.py
+    THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python generator.py [# of epochs]
 '''
 from __future__ import print_function
 import sys
@@ -40,6 +40,9 @@ def __predict(model, x, indices_val, diversity):
 
     return next_val
 
+''' Helper function which uses the given model to generate a grammar sequence 
+    from a given corpus, indices_val (mapping), abstract_grammars (list), 
+    and diversity floating point value. '''
 def __generate_grammar(model, corpus, abstract_grammars, indices_val, 
                        diversity):
     curr_grammar = ''
