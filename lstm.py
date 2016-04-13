@@ -16,21 +16,21 @@ from keras.layers.recurrent import LSTM
 import numpy as np
 
 ''' Build a 2-layer LSTM from a training corpus '''
-def build_model(corpus, val_indices, maxlen, N_epochs=128):
+def build_model(corpus, val_indices, max_len, N_epochs=128):
     # number of different values or words in corpus
     N_values = len(set(corpus))
 
-    # cut the corpus in semi-redundant sequences of maxlen values
+    # cut the corpus in semi-redundant sequences of max_len values
     step = 3
     sentences = []
     next_values = []
-    for i in range(0, len(corpus) - maxlen, step):
-        sentences.append(corpus[i: i + maxlen])
-        next_values.append(corpus[i + maxlen])
+    for i in range(0, len(corpus) - max_len, step):
+        sentences.append(corpus[i: i + max_len])
+        next_values.append(corpus[i + max_len])
     print('nb sequences:', len(sentences))
 
     # transform data into binary matrices
-    X = np.zeros((len(sentences), maxlen, N_values), dtype=np.bool)
+    X = np.zeros((len(sentences), max_len, N_values), dtype=np.bool)
     y = np.zeros((len(sentences), N_values), dtype=np.bool)
     for i, sentence in enumerate(sentences):
         for t, val in enumerate(sentence):
@@ -39,7 +39,7 @@ def build_model(corpus, val_indices, maxlen, N_epochs=128):
 
     # build a 2 stacked LSTM
     model = Sequential()
-    model.add(LSTM(128, return_sequences=True, input_shape=(maxlen, N_values)))
+    model.add(LSTM(128, return_sequences=True, input_shape=(max_len, N_values)))
     model.add(Dropout(0.2))
     model.add(LSTM(128, return_sequences=False))
     model.add(Dropout(0.2))
