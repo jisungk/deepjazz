@@ -17,9 +17,9 @@ from grammar import *
 #----------------------------HELPER FUNCTIONS----------------------------------#
 
 ''' Helper function to parse a MIDI file into its measures and chords '''
-def __parse_midi(fn):
+def __parse_midi(data_fn):
     # Parse the MIDI data for separate melody and accompaniment parts.
-    midi_data = converter.parse(fn)
+    midi_data = converter.parse(data_fn)
     # Get melody part, compress into single voice.
     melody_stream = midi_data[5]     # For Metheny piece, Melody is Part #5.
     melody1, melody2 = melody_stream.getElementsByClass(stream.Voice)
@@ -126,8 +126,8 @@ def __get_abstract_grammars(measures, chords):
 #----------------------------PUBLIC FUNCTIONS----------------------------------#
 
 ''' Get musical data from a MIDI file '''
-def get_musical_data(fn):
-    measures, chords = __parse_midi(fn)
+def get_musical_data(data_fn):
+    measures, chords = __parse_midi(data_fn)
     abstract_grammars = __get_abstract_grammars(measures, chords)
 
     return chords, abstract_grammars
@@ -139,4 +139,4 @@ def get_corpus_data(abstract_grammars):
     val_indices = dict((v, i) for i, v in enumerate(values))
     indices_val = dict((i, v) for i, v in enumerate(values))
 
-    return corpus, val_indices, indices_val
+    return corpus, values, val_indices, indices_val

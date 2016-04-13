@@ -43,16 +43,16 @@ def __predict(model, x, indices_val, diversity):
 ''' Helper function which uses the given model to generate a grammar sequence 
     from a given corpus, indices_val (mapping), abstract_grammars (list), 
     and diversity floating point value. '''
-def __generate_grammar(model, corpus, abstract_grammars, indices_val, 
-                       diversity):
+def __generate_grammar(model, corpus, abstract_grammars, values, val_indices,
+                       indices_val, max_len, max_tries, diversity):
     curr_grammar = ''
     # np.random.randint is exclusive to high
-    start_index = np.random.randint(0, len(corpus) - maxlen)
-    sentence = corpus[start_index: start_index + maxlen]    # seed
+    start_index = np.random.randint(0, len(corpus) - max_len)
+    sentence = corpus[start_index: start_index + max_len]    # seed
     running_length = 0.0
     while running_length <= 4.1:    # arbitrary, from avg in input file
         # transform sentence (previous sequence) to matrix
-        x = np.zeros((1, maxlen, len(values)))
+        x = np.zeros((1, max_len, len(values)))
         for t, val in enumerate(sentence):
             if (not val in val_indices): print(val)
             x[0, t, val_indices[val]] = 1.
@@ -89,84 +89,103 @@ def __generate_grammar(model, corpus, abstract_grammars, indices_val,
 
     return curr_grammar
 
-#---------------------------------SCRIPT---------------------------------------#
+#----------------------------PUBLIC FUNCTIONS----------------------------------#
+''' Generates musical sequence based on the given data filename and settings.
+    Plays then stores (MIDI file) the generated output. '''
+def generate(data_fn, out_fn, N_epochs):
+    # model settings
+    max_len = 20
+    max_tries = 1000
+    diversity = 0.5
 
-# model settings
-diversity = 0.5
-maxlen = 20
-max_tries = 1000
-N_epochs = int(sys.argv[1])
+    # musical settings
+    bpm = 130
 
-# i/o settings
-fn = 'midi/' + 'original_metheny.mid' # 'And Then I Knew' by Pat Metheny 
-outfn = 'midi/' 'deepjazz_on_metheny...' + str(N_epochs)
-if (N_epochs == 1): outfn += '_epoch.midi'
-else:               outfn += '_epochs.midi'
+    # get data
+    chords, abstract_grammars = get_musical_data(data_fn)
+    corpus, values, val_indices, indices_val = get_corpus_data(abstract_grammars)
+    print('corpus length:', len(corpus))
+    print('total # of values:', len(values))
 
-# musical settings
-bpm = 130
+    # build model
+    model = lstm.build_model(corpus=corpus, val_indices=val_indices, 
+                             max_len=max_len, N_epochs=N_epochs)
 
-# get data
-chords, abstract_grammars = get_musical_data(fn)
-corpus, val_indices, indices_val = get_corpus_data(abstract_grammars)
-values = set(corpus)
-print('corpus length:', len(corpus))
-print('total # of values:', len(values))
+    # set up audio stream
+    out_stream = stream.Stream()
 
-# build model
-model = lstm.build_model(corpus=corpus, val_indices=val_indices, maxlen=maxlen,
-                         N_epochs=N_epochs)
+    # generation loop
+    curr_offset = 0.0
+    loopEnd = len(chords)
+    for loopIndex in range(1, loopEnd):
+        # get chords from file
+        curr_chords = stream.Voice()
+        for j in chords[loopIndex]:
+            curr_chords.insert((j.offset % 4), j)
 
-# set up audio stream
-out_stream = stream.Stream()
-play = lambda x: midi.realtime.StreamPlayer(x).play()
-stop = lambda: pygame.mixer.music.stop()
+        # generate grammar
+        curr_grammar = __generate_grammar(model=model, corpus=corpus, 
+                                          abstract_grammars=abstract_grammars, 
+                                          values=values, val_indices=val_indices, 
+                                          indices_val=indices_val, 
+                                          max_len=max_len, max_tries=max_tries,
+                                          diversity=diversity)
 
-# generation loop
-curr_offset = 0.0
-loopEnd = len(chords)
-for loopIndex in range(1, loopEnd):
-    # get chords from file
-    curr_chords = stream.Voice()
-    for j in chords[loopIndex]:
-        curr_chords.insert((j.offset % 4), j)
+        curr_grammar = curr_grammar.replace(' A',' C').replace(' X',' C')
 
-    # generate grammar
-    curr_grammar = __generate_grammar(model, corpus, abstract_grammars, 
-                                      indices_val, diversity)
-    curr_grammar = curr_grammar.replace(' A',' C').replace(' X',' C')
+        # Pruning #1: smoothing measure
+        curr_grammar = prune_grammar(curr_grammar)
 
-    # Pruning #1: smoothing measure
-    curr_grammar = prune_grammar(curr_grammar)
+        # Get notes from grammar and chords
+        curr_notes = unparse_grammar(curr_grammar, curr_chords)
 
-    # Get notes from grammar and chords
-    curr_notes = unparse_grammar(curr_grammar, curr_chords)
+        # Pruning #2: removing repeated and too close together notes
+        curr_notes = prune_notes(curr_notes)
 
-    # Pruning #2: removing repeated and too close together notes
-    curr_notes = prune_notes(curr_notes)
+        # quality assurance: clean up notes
+        curr_notes = clean_up_notes(curr_notes)
 
-    # quality assurance: clean up notes
-    curr_notes = clean_up_notes(curr_notes)
+        # print # of notes in curr_notes
+        print('After pruning: %s notes' % (len([i for i in curr_notes
+            if isinstance(i, note.Note)])))
 
-    # print # of notes in curr_notes
-    print('After pruning: %s notes' % (len([i for i in curr_notes
-        if isinstance(i, note.Note)])))
+        # insert into the output stream
+        for m in curr_notes:
+            out_stream.insert(curr_offset + m.offset, m)
+        for mc in curr_chords:
+            out_stream.insert(curr_offset + mc.offset, mc)
 
-    # insert into the output stream
-    for m in curr_notes:
-        out_stream.insert(curr_offset + m.offset, m)
-    for mc in curr_chords:
-        out_stream.insert(curr_offset + mc.offset, mc)
+        curr_offset += 4.0
 
-    curr_offset += 4.0
+    out_stream.insert(0.0, tempo.MetronomeMark(number=bpm))
 
-out_stream.insert(0.0, tempo.MetronomeMark(number=bpm))
+    # Play the final stream through output (see 'play' lambda function above)
+    play = lambda x: midi.realtime.StreamPlayer(x).play()
+    play(out_stream)
 
-# Play the final stream through output (see 'play' lambda function above)
-play(out_stream)
+    # save stream
+    mf = midi.translate.streamToMidiFile(out_stream)
+    mf.open(out_fn, 'wb')
+    mf.write()
+    mf.close()
 
-# save stream
-mf = midi.translate.streamToMidiFile(out_stream)
-mf.open(outfn, 'wb')
-mf.write()
-mf.close()
+''' Runs generate() -- generating, playing, thene storing a musical sequence --
+    with the default Metheny file. '''
+def main(args):
+    try:
+        N_epochs = int(args[1])
+    except:
+        N_epochs = 16 # default
+
+    # i/o settings
+    data_fn = 'midi/' + 'original_metheny.mid' # 'And Then I Knew' by Pat Metheny 
+    out_fn = 'midi/' 'deepjazz_on_metheny...' + str(N_epochs)
+    if (N_epochs == 1): out_fn += '_epoch.midi'
+    else:               out_fn += '_epochs.midi'
+
+    generate(data_fn, out_fn, N_epochs)
+
+''' If run as script, execute main '''
+if __name__ == '__main__':
+    import sys
+    main(sys.argv)
