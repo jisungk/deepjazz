@@ -39,5 +39,7 @@ This project develops a lot of preprocessing code (with permission) from Evan Ch
 
 ### Code License, Media Copyright
 
-Code is licensed under the Apache License 2.0  
+Code is licensed under the Apache License 2.0
+See more about it in the [LICENSE](LICENSE) file.
+
 Images and other media are copyrighted (Ji-Sung Kim)
