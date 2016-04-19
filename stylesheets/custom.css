@@ -1,21 +1,24 @@
+/* SoundCloud custom button */
 .btn-sc {
   display: inline-block;
   margin-bottom: 1rem;
-  color: rgba(255, 100, 10, 1);
+  color: rgba(255, 255, 255, 1);
+  font-weight: bold;
   background: url('/img/icon_soundcloug.svg') no-repeat top left;
-  background-color: rgba(255, 100, 10, 1);
+  background-color: rgba(250, 100, 10, 1); /* SoundCloud orange */
   border-color: rgba(255, 255, 255, 0.2);
   border-style: solid;
   border-width: 1px;
   border-radius: 0.3rem;
   transition: color 0.2s, background-color 0.2s, border-color 0.2s; }
-  .btn-sc + .btn {
+  .btn-sc + .btn-gh {
     margin-left: 1rem; }
 
 .btn-sc:hover {
-  color: rgba(255, 120, 20, 1);
+  color: rgba(255, 255, 255, 1);
+  font-weight: bold;
   text-decoration: none;
-  background-color: rgba(255, 120, 20, 1);
+  background-color: rgba(255, 120, 25, 1);
   border-color: rgba(255, 255, 255, 0.3); }
 
 @media screen and (min-width: 64em) {
@@ -33,7 +36,49 @@
     width: 100%;
     padding: 0.75rem;
     font-size: 0.9rem; }
-    .btn-sc + .btn {
+    .btn-sc + .btn-gh {
+      margin-top: 1rem;
+      margin-left: 0; } }
+
+/* GitHub custom button */
+.btn-gh {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 1);
+  font-weight: bold;
+  background: url('/img/icon_soundcloug.svg') no-repeat top left;
+  background-color: rgba(170, 70, 150, 1); /* GitHub purple */
+  border-color: rgba(255, 255, 255, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 0.3rem;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s; }
+  .btn-gh + .btn {
+    margin-left: 1rem; }
+
+.btn-gh:hover {
+  color: rgba(255, 255, 255, 1);
+  font-weight: bold;
+  text-decoration: none;
+  background-color: rgba(190, 90, 170, 1);
+  border-color: rgba(255, 255, 255, 0.3); }
+
+@media screen and (min-width: 64em) {
+  .btn-gh {
+    padding: 0.75rem 1rem; } }
+
+@media screen and (min-width: 42em) and (max-width: 64em) {
+  .btn-gh {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem; } }
+
+@media screen and (max-width: 42em) {
+  .btn-gh {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem; }
+    .btn-gh + .btn {
       margin-top: 1rem;
       margin-left: 0; } }
 
