@@ -175,7 +175,7 @@ def main(args):
     try:
         N_epochs = int(args[1])
     except:
-        N_epochs = 16 # default
+        N_epochs = 128 # default
 
     # i/o settings
     data_fn = 'midi/' + 'original_metheny.mid' # 'And Then I Knew' by Pat Metheny 
