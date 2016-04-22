@@ -25,6 +25,8 @@ Run on GPU with command:
 THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python generator.py [# of epochs]
 ```
 
+Note: running Keras/Theano on GPU is formally supported for only NVIDIA cards (CUDA backend).
+
 Note: `preprocess.py` must be modified to work with other MIDI files (the relevant "melody" MIDI part needs to be selected). The ability to handle this natively is a planned feature.
 
 ### Author

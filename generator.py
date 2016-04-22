@@ -12,6 +12,8 @@ https://github.com/fchollet/keras/blob/master/examples/lstm_text_generation.py
 
 GPU run command:
     THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python generator.py [# of epochs]
+
+    Note: running Keras/Theano on GPU is formally supported for only NVIDIA cards (CUDA backend).
 '''
 from __future__ import print_function
 import sys
@@ -169,7 +171,7 @@ def generate(data_fn, out_fn, N_epochs):
     mf.write()
     mf.close()
 
-''' Runs generate() -- generating, playing, thene storing a musical sequence --
+''' Runs generate() -- generating, playing, then storing a musical sequence --
     with the default Metheny file. '''
 def main(args):
     try:
