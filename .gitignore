@@ -6,6 +6,8 @@
 mp3/
 deepjazz_on*.midi
 *_old*
+_private/
+_misc/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

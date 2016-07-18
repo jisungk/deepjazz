@@ -1,6 +1,6 @@
 '''
 Author:     Ji-Sung Kim
-Project:    jazzml
+Project:    deepjazz
 Purpose:    Builds an LSTM, a type of recurrent neural network (RNN). 
 
 Code was built while significantly referencing public examples from the
@@ -20,7 +20,7 @@ def build_model(corpus, val_indices, max_len, N_epochs=128):
     # number of different values or words in corpus
     N_values = len(set(corpus))
 
-    # cut the corpus in semi-redundant sequences of max_len values
+    # cut the corpus into semi-redundant sequences of max_len values
     step = 3
     sentences = []
     next_values = []

@@ -2,7 +2,7 @@
 
 ### Using Keras & Theano for deep learning driven jazz generation
 
-I built [*deepjazz*](http://deepjazz.io) in 36 hours at a hackathon. It uses Keras & Theano, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer [LSTM](http://deeplearning.net/tutorial/lstm.html), learning from the given MIDI file. It uses deep learning, the AI tech that powers [Google's AlphaGo](https://deepmind.com/alpha-go.html) and [IBM's Watson](https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html), **to make music -- something that's considered as deeply human**.
+I built [*deepjazz*](https://deepjazz.io) in 36 hours at a hackathon. It uses Keras & Theano, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer [LSTM](http://deeplearning.net/tutorial/lstm.html), learning from the given MIDI file. It uses deep learning, the AI tech that powers [Google's AlphaGo](https://deepmind.com/alpha-go.html) and [IBM's Watson](https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html), **to make music -- something that's considered as deeply human**.
 
 [![SoundCloud](https://jisungk.github.io/deepjazz/img/button_soundcloud.png)](https://soundcloud.com/deepjazz-ai)  
 Check out deepjazz's music on **[SoundCloud](https://soundcloud.com/deepjazz-ai)**!
@@ -31,9 +31,9 @@ Note: `preprocess.py` must be modified to work with other MIDI files (the releva
 
 ### Author
 
-[Ji-Sung Kim](http://jisungkim.com)  
+[Ji-Sung Kim](https://jisungkim.com)  
 Princeton University, Department of Computer Science  
-jisungk@princeton.edu  
+jisungk (at) cs.princeton.edu  
 
 ### Citations
 
