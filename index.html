@@ -17,6 +17,9 @@
         <link rel="stylesheet" type="text/css" href="stylesheets/custom.css" media="screen">
         <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
 
+        <!-- GitHub -->
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+
         <!-- Facebook Graph tags --> 
         <meta property="og:url" content="https://jisungk.github.io/deepjazz/" />
         <meta property="og:site_name" content="deepjazz.io" />
@@ -41,8 +44,13 @@
         </script>
     </head>
     <body>
+        <!-- GitHub star button. -->
+        <div style="position:absolute;top:15px;right:15px;">
+            <a  aria-label="Star jisungk/deepjazz on GitHub" data-count-aria-label="# stargazers on GitHub" data-count-api="/repos/jisungk/deepjazz#stargazers_count" data-count-href="/jisungk/deepjazz/stargazers" data-style="mega" data-icon="octicon-star" href="https://github.com/jisungk/deepjazz" class="github-button">Star</a>
+        </div>
+
         <section class="page-header">
-            <h1 class="project-name"> <img src="img/logo_white.svg" alt="deepjazz" align="center" style="width:320px;height:80px;"></h1>
+            <h1 class="project-name"> <img src="img/logo_white.svg" alt="deepjazz" align="center" style="width:320px;"></h1>
             <h2 class="project-tagline">Using Keras &amp; Theano for deep learning driven jazz generation</h2>
             <a href="https://soundcloud.com/deepjazz-ai/sets" class="btn-sc"><img src="img/icon_soundcloud.svg" alt="Listen on SoundCloud" height=21 align=top></a>
             <a href="https://github.com/jisungk/deepjazz" class="btn-gh"><img src="img/icon_github.svg" alt="View on GitHub" height=21 align=top></a>
@@ -56,6 +64,9 @@
             </h2>
             <p>
                 I built <i>deepjazz</i> in 36 hours at a hackathon. It uses <a href="http://keras.io/">Keras</a> &amp; <a href="http://deeplearning.net/software/theano/">Theano</a>, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer <a href="http://deeplearning.net/tutorial/lstm.html">LSTM</a>, learning from the given MIDI file. It uses deep learning, the AI tech that powers <a href="https://deepmind.com/alpha-go.html">Google's AlphaGo</a> and <a href="https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html">IBM's Watson</a>, <b>to make music -- something that's considered as deeply human</b>.
+            </p>
+            <p>
+                deepjazz has been featured in <a href="https://www.theguardian.com/science/2016/may/06/does-an-ai-need-to-make-love-to-rembrandts-girlfriend-to-make-art">The Guardian</a>, <a href="https://aeon.co/ideas/there-is-no-such-thing-as-computer-art-it-s-all-just-art">Aeon</a>, <a href="https://www.inverse.com/article/14608-princeton-undergrad-creates-google-deep-dream-inspired-deepjazz-a-i-music-maker">Inverse</a>, <a href="http://dataskeptic.com/epnotes/deepjazz.php">Data Skeptic</a>, the front page of HackerNews, and GitHub's trending showcase. Currently, it is being used as reference material for the course "Interactive Intelligent Devices" at the University of Perugia. 
             </p>
             <h2>
                 <a id="soundcloud" class="anchor" href="#soundclound" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a style="color:#1A697A;" href="https://soundcloud.com/deepjazz-ai/sets">Want to listen?</a>
