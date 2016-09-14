@@ -1,5 +1,6 @@
 # source
-_*
+_private/
+_misc/
 midi/
 mp3/
 *.pyc

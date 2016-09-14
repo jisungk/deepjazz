@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head>
+        <!-- enforce https -->
+        <script type="text/javascript">
+            var host = "yoursite.com";
+            if ((host == window.location.host) && (window.location.protocol != "https:"))
+                window.location.protocol = "https";
+        </script>
+
         <title>deepjazz: deep learning for jazz</title>
         <meta name="author" content="Ji-Sung Kim">
         <meta name="description" content="deepjazz uses Keras and Theano for deep learning driven jazz generation. It's an AI which makes music -- something that's considered as deeply human.">
         <meta name="keywords" content="deepjazz,deep jazz,deep learning,jazz,AI,machine learning,data science">
         <link rel="icon" href="favicon.png">
         <link rel="image_src" href="img/thumbnail.jpg" />
-        <link rel="canonical" href="http://deepjazz.io">
+        <link rel="canonical" href="https://deepjazz.io">
 
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -66,7 +73,7 @@
                 I built <i>deepjazz</i> in 36 hours at a hackathon. It uses <a href="http://keras.io/">Keras</a> &amp; <a href="http://deeplearning.net/software/theano/">Theano</a>, two deep learning libraries, to generate jazz music. Specifically, it builds a two-layer <a href="http://deeplearning.net/tutorial/lstm.html">LSTM</a>, learning from the given MIDI file. It uses deep learning, the AI tech that powers <a href="https://deepmind.com/alpha-go.html">Google's AlphaGo</a> and <a href="https://www.ibm.com/smarterplanet/us/en/ibmwatson/what-is-watson.html">IBM's Watson</a>, <b>to make music -- something that's considered as deeply human</b>.
             </p>
             <p>
-                deepjazz has been featured in <a href="https://www.theguardian.com/science/2016/may/06/does-an-ai-need-to-make-love-to-rembrandts-girlfriend-to-make-art">The Guardian</a>, <a href="https://aeon.co/ideas/there-is-no-such-thing-as-computer-art-it-s-all-just-art">Aeon</a>, <a href="https://www.inverse.com/article/14608-princeton-undergrad-creates-google-deep-dream-inspired-deepjazz-a-i-music-maker">Inverse</a>, <a href="http://dataskeptic.com/epnotes/deepjazz.php">Data Skeptic</a>, the front page of HackerNews, and GitHub's trending showcase. Currently, it is being used as reference material for the course "Interactive Intelligent Devices" at the University of Perugia. 
+                deepjazz has been featured in <a href="https://www.theguardian.com/science/2016/may/06/does-an-ai-need-to-make-love-to-rembrandts-girlfriend-to-make-art">The Guardian</a>, <a href="https://aeon.co/ideas/there-is-no-such-thing-as-computer-art-it-s-all-just-art">Aeon Magazine</a>, <a href="https://www.inverse.com/article/14608-princeton-undergrad-creates-google-deep-dream-inspired-deepjazz-a-i-music-maker">Inverse</a>, <a href="http://dataskeptic.com/epnotes/deepjazz.php">Data Skeptic</a>, the front page of HackerNews, and GitHub's trending showcase (1200+ stars). It has led to the most popular "AI" artist on <a href="https://soundcloud.com/deepjazz-ai/sets">SoundCloud</a> with 172,000+ listens. Currently, deepjazz is being used as reference material for the course "Interactive Intelligent Devices" at the University of Perugia. 
             </p>
             <h2>
                 <a id="soundcloud" class="anchor" href="#soundclound" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a style="color:#1A697A;" href="https://soundcloud.com/deepjazz-ai/sets">Want to listen?</a>
@@ -82,8 +89,9 @@
             </h2>
 
             <p>
-                <a href="http://jisungkim.com">Ji-Sung Kim</a><br>
-                Princeton University, Department of Computer Science<br>jisungk (at) princeton (dot) edu
+                <a href="https://jisungkim.com">Ji-Sung Kim</a><br>
+                Princeton University, Department of Computer Science<br>
+                jisungk (at) cs.princeton.edu  
             </p>
 
             <h2>
