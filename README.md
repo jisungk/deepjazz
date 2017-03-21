@@ -1,3 +1,7 @@
+Note: deepjazz has been succeeded by [**songbird.ai**](http://songbird.ai) and is no longer being actively developed. 
+
+***
+
 ![deepjazz](https://cloud.githubusercontent.com/assets/9053987/16575656/901989da-424f-11e6-9f54-6a04199e69f5.png)
 
 ### Using Keras & Theano for deep learning driven jazz generation
