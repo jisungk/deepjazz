@@ -1,4 +1,4 @@
-Note: deepjazz has been succeeded by [**songbird.ai**](http://songbird.ai) and is no longer being actively developed. 
+Note: deepjazz is no longer being actively developed. It may be refactored at some point in the future. Goodbye and thank you for your interest 😢
 
 ***
 
@@ -37,7 +37,7 @@ Note: `preprocess.py` must be modified to work with other MIDI files (the releva
 
 [Ji-Sung Kim](https://jisungkim.com)  
 Princeton University, Department of Computer Science  
-jisungk (at) cs.princeton.edu  
+hello (at) jisungkim.com  
 
 ### Citations
 
