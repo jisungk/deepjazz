@@ -1,3 +1,7 @@
+**I do not have an X / Twitter account.** Someone has claimed my old username and is impersonating me to shill some dodgy crypto platform. Please beware. 
+
+***
+
 Note: deepjazz is no longer being actively developed. It may be refactored at some point in the future. Goodbye and thank you for your interest 😢
 
 ***
